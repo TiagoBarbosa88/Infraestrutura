@@ -47,17 +47,18 @@ resource "aws_s3_bucket_acl" "static_site_bucket" {
 
 
 resource "aws_s3_bucket_policy" "bucket-policy" {
-  bucket = data.aws_s3_bucket.selected-bucket.id
-  policy = data.aws_iam_policy_document.iam-policy-1.json
-}
-data "aws_iam_policy_document" "iam-policy-1" {
-  statement {
-    sid    = "AllowPublicRead"
-    effect = "Allow"
-    actions = ["S3:GetObject"]
- principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-  }
+  bucket = aws_s3_bucket.static_site_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid       = "AllowPublicRead",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "${aws_s3_bucket.static_site_bucket.arn}/*"
+      }
+    ]
+  })
 }
